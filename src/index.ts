@@ -12,7 +12,7 @@ const currencies = [
     "₪", "ILS",
 ]
 
-const seps = /\s|\.|,/
+const seps = /\s\.,/
 const nb = '0123456789'
 
 const thousandsSize = 3;
@@ -31,12 +31,14 @@ type TPrice = TAmount & { currency: string }
 - METHODES
 ----------------------------------*/
 
-function matchAmount(str: string, debug: boolean = false): TAmount | null {
+export function extractAmount(str: string, debug: boolean = false): TAmount | null {
 
     let amountStr = '';
     let decsep: string | undefined;
     let grpsep: string | undefined;
     let grplength = 0;
+
+    debug && console.log(`[extractAmount] Extracting amount from "${str}"`);
 
     const strlength = str.length;
     for (let i = strlength - 1; i >= 0; i--) {
@@ -53,7 +55,7 @@ function matchAmount(str: string, debug: boolean = false): TAmount | null {
             if (decsep === undefined || c === decsep) {
 
                 if (grplength !== decSize) {
-                    debug && console.log(`Bad decimals size:`, amountStr);
+                    debug && console.log(`[extractAmount] Bad decimals size:`, amountStr);
                     return null;
                 }
 
@@ -65,12 +67,12 @@ function matchAmount(str: string, debug: boolean = false): TAmount | null {
 
                 // If thousands separator has already been defined, it must always be the same
                 if (grpsep !== undefined && grpsep !== c) {
-                    debug && console.log(`Inexpected separator: "${c}"`);
+                    debug && console.log(`[extractAmount] Inexpected separator: "${c}"`);
                     break;
                 }
 
                 if (grplength !== thousandsSize) {
-                    debug && console.log(`Bad thousands size:`, amountStr);
+                    debug && console.log(`[extractAmount] Bad thousands size:`, amountStr);
                     return null;
                 }
 
@@ -82,14 +84,14 @@ function matchAmount(str: string, debug: boolean = false): TAmount | null {
             grplength = 0;
 
         } else {
-            debug && console.log(`Inexpected caracter: "${c}"`);
+            debug && console.log(`[extractAmount] Inexpected caracter: "${c}"`);
             break;
         }
 
         amountStr = c + amountStr;
     }
 
-    debug && console.log(str, '=>', amountStr, { grpsep, decsep });
+    debug && console.log('[extractAmount]', str, '=>', amountStr, { grpsep, decsep });
 
     const number = parseFloat(amountStr);
 
@@ -97,9 +99,11 @@ function matchAmount(str: string, debug: boolean = false): TAmount | null {
 
 }
 
-export function price(input: string, details: true, debug?: boolean): TPrice | null;
-export function price(input: string, details?: false, debug?: boolean): number | null;
-export function price(input: string, details: boolean = false, debug: boolean = false): TPrice | number | null {
+export default function extractPrice(input: string, details: true, debug?: boolean): TPrice | null;
+export default function extractPrice(input: string, details?: false, debug?: boolean): number | null;
+export default function extractPrice(input: string, details: boolean = false, debug: boolean = false): TPrice | number | null {
+
+    console.log(`[extractPrice] Input: "${input}"`);
 
     let currency: { symb: string, index: number } | null = null;
     for (const symb of currencies) {
@@ -110,18 +114,22 @@ export function price(input: string, details: boolean = false, debug: boolean = 
         }
     }
 
-    if (currency === null) return null;
+    if (currency === null) {
+        console.log(`[extractPrice] No currency symbol found in the given input: "${input}"`);
+        return null;
+    }
+
+    console.log(`[extractPrice] Currency =`, currency);
 
     let amount: TAmount | null = null;
     if (currency.index >= minAmountSize) {
         const strBefore = input.substring(0, currency.index).trim();
-        amount = matchAmount(strBefore, debug);
+        amount = extractAmount(strBefore, debug);
     }
 
     if (amount === null && currency.index <= input.length - minAmountSize) {
-
         const strAfter = input.substring(currency.index + currency.symb.length).trim();
-        amount = matchAmount(strAfter, debug);
+        amount = extractAmount(strAfter, debug);
     }
 
     if (amount === null)
