@@ -12,7 +12,7 @@ const currencies = [
     "₪", "ILS",
 ]
 
-const seps = /\s\.,/
+const seps = /\s|\.|,/
 const nb = '0123456789'
 
 const thousandsSize = 3;
