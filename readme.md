@@ -1,6 +1,6 @@
 # JSON Deep Equal
 
-Check if json objects contains the same values (ignoring arrays order).
+Extract price amount and metas (currency, decimal & thousand separator) without using any regex.
 
 [![npm](https://img.shields.io/npm/v/@dopamyn/price-extract)](https://www.npmjs.com/package/@dopamyn/price-extract)
 
