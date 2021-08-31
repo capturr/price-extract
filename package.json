@@ -1,0 +1,31 @@
+{
+    "name": "@dopamyn/price-extract",
+    "author": "Gaetan Le Gac <contact@gaetan-legac.fr>",
+    "description": "",
+    "keywords": [
+        "price",
+        "extract",
+        "amount",
+        "number",
+        "currency"
+    ],
+    "version": "0.0.2",
+    "license": "MIT",
+    "private": false,
+    "main": "bin/index.js",
+    "files": [
+        "bin"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/dopamyn/price-extract.git"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "prepare": "npm run build"
+    },
+    "devDependencies": {
+        "typescript": "^4.3.5"
+    }
+}
