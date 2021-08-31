@@ -3,16 +3,16 @@
 ----------------------------------*/
 
 const currencies = [
-    "R$", "BRL",
-    "lei", "LEI", "Lei", "RON",
     "$", "US$", "US dollars", "USD",
     "£", "GBP",
     "€", "Euro", "EUR",
+    "R$", "BRL",
+    "lei", "LEI", "Lei", "RON",
     "руб", "RUB",
     "₪", "ILS",
 ]
 
-const seps = ' ,.'
+const seps = /\s|\.|,/
 const nb = '0123456789'
 
 const thousandsSize = 3;
@@ -31,7 +31,7 @@ type TPrice = TAmount & { currency: string }
 - METHODES
 ----------------------------------*/
 
-export function extractAmount(str: string, debug: boolean = false): TAmount | null {
+function matchAmount(str: string, debug: boolean = false): TAmount | null {
 
     let amountStr = '';
     let decsep: string | undefined;
@@ -43,7 +43,11 @@ export function extractAmount(str: string, debug: boolean = false): TAmount | nu
 
         let c = str[i];
 
-        if (seps.includes(c)) {
+        if (nb.includes(c)) {
+
+            grplength++;
+
+        } else if (seps.test(c)) {
 
             // Decimals séparator
             if (decsep === undefined || c === decsep) {
@@ -77,10 +81,6 @@ export function extractAmount(str: string, debug: boolean = false): TAmount | nu
 
             grplength = 0;
 
-        } else if (nb.includes(c)) {
-
-            grplength++;
-
         } else {
             debug && console.log(`Inexpected caracter: "${c}"`);
             break;
@@ -97,9 +97,9 @@ export function extractAmount(str: string, debug: boolean = false): TAmount | nu
 
 }
 
-export default function extractPrice(input: string, details: true, debug?: boolean): TPrice | null;
-export default function extractPrice(input: string, details?: false, debug?: boolean): number | null;
-export default function extractPrice(input: string, details: boolean = false, debug: boolean = false): TPrice | number | null {
+export function price(input: string, details: true, debug?: boolean): TPrice | null;
+export function price(input: string, details?: false, debug?: boolean): number | null;
+export function price(input: string, details: boolean = false, debug: boolean = false): TPrice | number | null {
 
     let currency: { symb: string, index: number } | null = null;
     for (const symb of currencies) {
@@ -115,13 +115,13 @@ export default function extractPrice(input: string, details: boolean = false, de
     let amount: TAmount | null = null;
     if (currency.index >= minAmountSize) {
         const strBefore = input.substring(0, currency.index).trim();
-        amount = extractAmount(strBefore, debug);
+        amount = matchAmount(strBefore, debug);
     }
 
     if (amount === null && currency.index <= input.length - minAmountSize) {
 
         const strAfter = input.substring(currency.index + currency.symb.length).trim();
-        amount = extractAmount(strAfter, debug);
+        amount = matchAmount(strAfter, debug);
     }
 
     if (amount === null)

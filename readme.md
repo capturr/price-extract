@@ -1,6 +1,6 @@
 # Extract Price from String
 
-Extract price amount and metadatas (currency, decimal & thousands separator) without using any regex.
+Performant way to extract price amount and metadatas (currency, decimal & thousands separator) from any string.
 
 [![npm](https://img.shields.io/npm/v/@dopamyn/price-extract)](https://www.npmjs.com/package/@dopamyn/price-extract)
 
