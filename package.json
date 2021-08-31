@@ -1,7 +1,7 @@
 {
     "name": "@dopamyn/price-extract",
     "author": "Gaetan Le Gac <contact@gaetan-legac.fr>",
-    "description": "Extract price amount and metas (currency, decimal & thousand separator) without using any regex.",
+    "description": "Extract price amount and metadatas (currency, decimal & thousands separator) without using any regex.",
     "keywords": [
         "price",
         "extract",

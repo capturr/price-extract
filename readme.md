@@ -1,6 +1,6 @@
-# JSON Deep Equal
+# Extract Price from String
 
-Extract price amount and metas (currency, decimal & thousand separator) without using any regex.
+Extract price amount and metadatas (currency, decimal & thousands separator) without using any regex.
 
 [![npm](https://img.shields.io/npm/v/@dopamyn/price-extract)](https://www.npmjs.com/package/@dopamyn/price-extract)
 
