@@ -3,15 +3,16 @@
 ----------------------------------*/
 
 // From https://github.com/mindtricksdev/parse-money/blob/master/src/index.ts
-const currencies: {[currency: string]: string[]} = {
-    BRL: ["R$", "BRL"],
-    RON: ["lei", "LEI", "Lei", "RON"],
-    USD: ["$", "US$", "US dollars", "USD"],
-    GBP: ["£", "GBP"],
-    EUR: ["€", "Euro", "EUR"],
-    RUB: ["руб", "RUB"],
-    ILS: ["₪", "ILS"],
-}
+// [symbol, iso, ...other]
+const currencies: string[][] = [
+    ["R$", "BRL"],
+    ["lei", "RON", "LEI", "Lei"],
+    ["$", "USD", "US$", "US dollars"],
+    ["£", "GBP"],
+    ["€", "EUR", "Euro"],
+    ["руб", "RUB"],
+    ["₪", "ILS"],
+]
 
 const seps = /\s|\.|,/
 const nb = '0123456789'
@@ -25,8 +26,20 @@ const minAmountSize = decSize + 2;
 - TYPES
 ----------------------------------*/
 
-type TAmount = { number: number, decsep?: string, grpsep?: string }
-type TPrice = TAmount & { currency: string }
+export type TAmount = { 
+    number: number, 
+    decsep?: string, 
+    grpsep?: string 
+}
+
+export type TCurrency = { 
+    symbol: string, 
+    iso: string, 
+    match: string, 
+    index: number 
+}
+
+export type TPrice = TAmount & { currency: TCurrency }
 
 /*----------------------------------
 - METHODES
@@ -63,7 +76,7 @@ export function extractAmount(str: string, debug: boolean = false): TAmount | nu
                 decsep = c;
                 c = '.';
 
-                // Groups separator
+            // Groups separator
             } else {
 
                 // If thousands separator has already been defined, it must always be the same
@@ -100,23 +113,34 @@ export function extractAmount(str: string, debug: boolean = false): TAmount | nu
 
 }
 
-export default function extractPrice(input: string, details: true, debug?: boolean): TPrice | null;
-export default function extractPrice(input: string, details?: false, debug?: boolean): number | null;
-export default function extractPrice(input: string, details: boolean = false, debug: boolean = false): TPrice | number | null {
+export function extractCurrency( input: string ): TCurrency | null {
 
-    debug && console.log(`[extractPrice] Input: "${input}"`);
+    for (const expressions of currencies) {
+        for (const expression of expressions) {
 
-    let currency: { match: string, symb: string, index: number } | null = null;
-    for (const symb in currencies) {
-        for (const expr of currencies[symb]) {
-            const index = input.indexOf(expr);
-            if (index !== -1) {
-                currency = { match: expr, symb, index };
-                break;
-            }
+            const index = input.indexOf(expression);
+            if (index !== -1)
+                return {
+                    symbol: expression[0],
+                    iso: expression[1],
+                    match: expression,
+                    index
+                };
+
         }
     }
 
+    return null;
+
+}
+
+export default function extractPrice( input: string, details: true, debug?: boolean ): TPrice | null;
+export default function extractPrice( input: string, details?: false, debug?: boolean ): number | null;
+export default function extractPrice( input: string, details: boolean = false, debug: boolean = false ): TPrice | number | null {
+
+    debug && console.log(`[extractPrice] Input: "${input}"`);
+
+    const currency = extractCurrency(input);
     if (currency === null) {
         debug && console.log(`[extractPrice] No currency symbol found in the given input: "${input}"`);
         return null;
@@ -131,12 +155,12 @@ export default function extractPrice(input: string, details: boolean = false, de
     }
 
     if (amount === null && currency.index <= input.length - minAmountSize) {
-        const strAfter = input.substring(currency.index + currency.symb.length).trim();
+        const strAfter = input.substring(currency.index + currency.match.length).trim();
         amount = extractAmount(strAfter, debug);
     }
 
     if (amount === null)
         return null;
 
-    return details ? { ...amount, currency: currency.symb } : amount.number;
+    return details ? { ...amount, currency: currency } : amount.number;
 }

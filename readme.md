@@ -16,18 +16,35 @@ npm install --save price-extract
 extractPrice( input: string, details?: boolean = false, debug?: boolean = false ): TPrice | number | null;
 ```
 
-## Usage example
+## Return Value
+
+* **null**: When the price could not be parsed
+* **number**: The extracted price value
+* **object**: The extract price informations (when details = true)
+
+## Example
 
 ```typescript
 import extractPrice from 'price-extract';
 
 console.log(
-    'Should be ok:',
-    ...['1 185,36 €', '$ 1,185,456.36', 'RUB 1185.36', '118536£'].map(v => price(v, false, true))
-);
+    extractPrice('1 185,36 €'),
+    /* 1185.36 */
 
-console.log(
-    'Should be null:',
-    ...['EUR 85,456.3', 'EUR 85,4556.34', '$ 1.185,456.36'].map(v => price(v, false, true))
+    extractPrice('$ 85,4556.34'),
+    /* null */
+    
+    extractPrice('12,456.24 USD', true), 
+    /* { 
+        number: 12456.24, 
+        decsep: '.', 
+        grpsep: ',', 
+        currency: { 
+            symbol: '$', 
+            iso: 'USD', 
+            match: 'USD',
+            index: 10
+        } 
+    } */
 );
 ```
