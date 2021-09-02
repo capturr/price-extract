@@ -1,5 +1,5 @@
 {
-    "name": "@dopamyn/price-extract",
+    "name": "price-extract",
     "author": "Gaetan Le Gac <contact@gaetan-legac.fr>",
     "description": "Performant way to extract price amount and metadatas (currency, decimal & thousands separator) from any string.",
     "keywords": [

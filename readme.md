@@ -2,12 +2,12 @@
 
 Performant way to extract price amount and metadatas (currency, decimal & thousands separator) from any string.
 
-[![npm](https://img.shields.io/npm/v/@dopamyn/price-extract)](https://www.npmjs.com/package/@dopamyn/price-extract)
+[![npm](https://img.shields.io/npm/v/price-extract)](https://www.npmjs.com/package/price-extract)
 
 ## Installation
 
 ```bash
-npm install --save @dopamyn/price-extract
+npm install --save price-extract
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ extractPrice( input: string, details?: boolean = false, debug?: boolean = false 
 ## Usage example
 
 ```typescript
-import extractPrice from '@dopamyn/price-extract';
+import extractPrice from 'price-extract';
 
 console.log(
     'Should be ok:',
