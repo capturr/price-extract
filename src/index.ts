@@ -103,7 +103,7 @@ export default function extractPrice(input: string, details: true, debug?: boole
 export default function extractPrice(input: string, details?: false, debug?: boolean): number | null;
 export default function extractPrice(input: string, details: boolean = false, debug: boolean = false): TPrice | number | null {
 
-    console.log(`[extractPrice] Input: "${input}"`);
+    debug && console.log(`[extractPrice] Input: "${input}"`);
 
     let currency: { symb: string, index: number } | null = null;
     for (const symb of currencies) {
@@ -115,11 +115,11 @@ export default function extractPrice(input: string, details: boolean = false, de
     }
 
     if (currency === null) {
-        console.log(`[extractPrice] No currency symbol found in the given input: "${input}"`);
+        debug && console.log(`[extractPrice] No currency symbol found in the given input: "${input}"`);
         return null;
     }
 
-    console.log(`[extractPrice] Currency =`, currency);
+    debug && console.log(`[extractPrice] Currency =`, currency);
 
     let amount: TAmount | null = null;
     if (currency.index >= minAmountSize) {
