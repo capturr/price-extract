@@ -163,4 +163,5 @@ export default function extractPrice( input: string, details: boolean = false, d
         return null;
 
     return details ? { ...amount, currency: currency } : amount.number;
+    
 }

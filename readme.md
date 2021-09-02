@@ -28,6 +28,7 @@ extractPrice( input: string, details?: boolean = false, debug?: boolean = false 
 import extractPrice from 'price-extract';
 
 console.log(
+    
     extractPrice('1 185,36 €'),
     /* 1185.36 */
 
