@@ -121,8 +121,8 @@ export function extractCurrency( input: string ): TCurrency | null {
             const index = input.indexOf(expression);
             if (index !== -1)
                 return {
-                    symbol: expression[0],
-                    iso: expression[1],
+                    symbol: expressions[0],
+                    iso: expressions[1],
                     match: expression,
                     index
                 };
@@ -163,5 +163,5 @@ export default function extractPrice( input: string, details: boolean = false, d
         return null;
 
     return details ? { ...amount, currency: currency } : amount.number;
-    
+
 }
