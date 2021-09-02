@@ -2,15 +2,16 @@
 - CONST
 ----------------------------------*/
 
-const currencies = [
-    "$", "US$", "US dollars", "USD",
-    "£", "GBP",
-    "€", "Euro", "EUR",
-    "R$", "BRL",
-    "lei", "LEI", "Lei", "RON",
-    "руб", "RUB",
-    "₪", "ILS",
-]
+// From https://github.com/mindtricksdev/parse-money/blob/master/src/index.ts
+const currencies: {[currency: string]: string[]} = {
+    BRL: ["R$", "BRL"],
+    RON: ["lei", "LEI", "Lei", "RON"],
+    USD: ["$", "US$", "US dollars", "USD"],
+    GBP: ["£", "GBP"],
+    EUR: ["€", "Euro", "EUR"],
+    RUB: ["руб", "RUB"],
+    ILS: ["₪", "ILS"],
+}
 
 const seps = /\s|\.|,/
 const nb = '0123456789'
@@ -105,12 +106,14 @@ export default function extractPrice(input: string, details: boolean = false, de
 
     debug && console.log(`[extractPrice] Input: "${input}"`);
 
-    let currency: { symb: string, index: number } | null = null;
-    for (const symb of currencies) {
-        const index = input.indexOf(symb);
-        if (index !== -1) {
-            currency = { symb, index };
-            break;
+    let currency: { match: string, symb: string, index: number } | null = null;
+    for (const symb in currencies) {
+        for (const expr of currencies[symb]) {
+            const index = input.indexOf(expr);
+            if (index !== -1) {
+                currency = { match: expr, symb, index };
+                break;
+            }
         }
     }
 
