@@ -47,67 +47,108 @@ export type TPrice = TAmount & { currency: TCurrency }
 
 export function extractAmount(str: string, debug: boolean = false): TAmount | null {
 
-    let amountStr = '';
     let decsep: string | undefined;
     let grpsep: string | undefined;
-    let grplength = 0;
+
+    let currentGroup = '';
+    let parsedAmount = '';
 
     debug && console.log(`[extractAmount] Extracting amount from "${str}"`);
 
     const strlength = str.length;
-    for (let i = strlength - 1; i >= 0; i--) {
+    // We go until -1 to process the last character sof the stirng
+    for (let i = strlength - 1; i >= -1; i--) {
 
         let c = str[i];
-
+        const endOfString = i === -1;
+        
+        // Number: add to group
         if (nb.includes(c)) {
 
-            grplength++;
+            currentGroup = c + currentGroup;
 
-        } else if (seps.test(c)) {
+        // Other: check & commit current group
+        } else {
 
-            // Decimals séparator
-            if (decsep === undefined || c === decsep) {
+            const grpLength = currentGroup.length;
+            const isDecimals = decsep === undefined;
 
-                if (grplength !== decSize) {
-                    debug && console.log(`[extractAmount] Bad decimals size:`, amountStr);
+            // Decimals group
+            if (isDecimals) {
+
+                // Group size
+                if (!endOfString && grpLength > decSize) {
+                    debug && console.log(`[extractAmount] Bad decimals size for "${currentGroup}":`, grpLength, ', should be <=', decSize, '. Invalidating the input.');
                     return null;
                 }
 
-                decsep = c;
-                c = '.';
+                debug && console.log(`[extractAmount] New decimals group:`, currentGroup);
+                parsedAmount = currentGroup;
 
-            // Groups separator
+                if (endOfString) {
+                    debug && console.log(`[extractAmount] End of string.`);
+                    break;
+                }
+                
+            // Thousands group
             } else {
 
-                // If thousands separator has already been defined, it must always be the same
-                if (grpsep !== undefined && grpsep !== c) {
-                    debug && console.log(`[extractAmount] Inexpected separator: "${c}"`);
+                debug && console.log(`[extractAmount] New thousands group:`, currentGroup);
+                parsedAmount = currentGroup + (grpsep === undefined ? '.' : '') + parsedAmount;
+
+                if (!endOfString) {
+
+                    // No thousands separator
+                    if (grpsep === undefined) {
+
+                        if (grpLength > thousandsSize) {
+                            debug && console.log(`[extractAmount] Thousands separator is empty`);
+                            grpsep = '';
+                        }
+
+                    // If thousands separator has already been defined, it must always be the same
+                    } else if (c !== grpsep) {
+
+                        debug && console.log(`[extractAmount] "${c}" is not mathing the current thousands separator "${grpsep}". Closing group.`);
+                        break;
+
+                    }
+
+                    if (grpLength !== thousandsSize) {
+                        debug && console.log(`[extractAmount] "${currentGroup}" is the last thousands group (length < ${thousandsSize}). Closing group.`);
+                        break;
+                    }
+
+                } else {
+                    debug && console.log(`[extractAmount] End of string.`);
                     break;
                 }
 
-                if (grplength !== thousandsSize) {
-                    debug && console.log(`[extractAmount] Bad thousands size:`, amountStr);
-                    return null;
-                }
-
-                grpsep = c;
-                c = '';
-
             }
 
-            grplength = 0;
+            currentGroup = '';
 
-        } else {
-            debug && console.log(`[extractAmount] Inexpected caracter: "${c}"`);
-            break;
+            if (seps.test(c)) {
+
+                if (isDecimals)
+                    decsep = c;
+                else
+                    grpsep = c;
+
+            } else {
+                debug && console.log(`[extractAmount] Inexpected character: "${c}" (Not a number, not a separator). Closing group.`);
+                break;
+            }
+
         }
+    } 
 
-        amountStr = c + amountStr;
-    }
+    debug && console.log('[extractAmount]', `"${str}" => "${parsedAmount}"`, { grpsep, decsep });
 
-    debug && console.log('[extractAmount]', str, '=>', amountStr, { grpsep, decsep });
+    if (parsedAmount === '')
+        return null;
 
-    const number = parseFloat(amountStr);
+    const number = parseFloat(parsedAmount);
 
     return { number, decsep, grpsep }
 
@@ -138,6 +179,7 @@ export default function extractPrice( input: string, details: true, debug?: bool
 export default function extractPrice( input: string, details?: false, debug?: boolean ): number | null;
 export default function extractPrice( input: string, details: boolean = false, debug: boolean = false ): TPrice | number | null {
 
+    debug && console.log(`--------------------------------`);
     debug && console.log(`[extractPrice] Input: "${input}"`);
 
     const currency = extractCurrency(input);

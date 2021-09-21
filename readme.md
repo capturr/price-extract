@@ -10,10 +10,29 @@ Performant way to extract price amount and metadatas (currency, decimal & thousa
 npm install --save price-extract
 ```
 
-## Usage
+## API
 
 ```typescript
-extractPrice( input: string, details?: boolean = false, debug?: boolean = false ): TPrice | number | null;
+extractPrice( 
+    input: string, 
+    details?: boolean = false, 
+    debug?: boolean = false 
+): TPrice | number | null;
+
+type TAmount = { 
+    number: number, 
+    decsep?: string, 
+    grpsep?: string 
+}
+
+type TCurrency = { 
+    symbol: string, 
+    iso: string, 
+    match: string, 
+    index: number 
+}
+
+type TPrice = TAmount & { currency: TCurrency }
 ```
 
 ## Return Value
@@ -29,10 +48,13 @@ import extractPrice from 'price-extract';
 
 console.log(
     
-    extractPrice('1 185,36 €'),
+    extractPrice('starting from 1 185,36 € (including taxes)'),
     /* 1185.36 */
 
     extractPrice('$ 85,4556.34'),
+    /* 556.34 */
+
+    extractPrice('There is no price here hahaha $$'),
     /* null */
     
     extractPrice('12,456.24 USD', true), 

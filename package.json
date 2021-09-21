@@ -9,7 +9,7 @@
         "number",
         "currency"
     ],
-    "version": "0.0.4",
+    "version": "0.0.5",
     "license": "MIT",
     "private": false,
     "main": "bin/index.js",
@@ -23,6 +23,7 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc -w",
+        "test": "ts-node ./test.ts",
         "prepare": "npm run build"
     },
     "devDependencies": {
